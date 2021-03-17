@@ -271,7 +271,7 @@ contract HecoRuffToken is ParameterizedToken {
         address  previousLockRuffAddr,
         address  newLockRuffAddr
     );
-    event DepositEvent(address lockRuffAddr, uint256 amount, string ruffAddr);
+    event DepositEvent(address from, address lockRuffAddr, uint256 amount, string ruffAddr);
     event WithdrawEvent(address lockRuffAddr, uint256 amount, address to, string txHash);
 
     modifier onlyRuffLocker() {
@@ -292,10 +292,12 @@ contract HecoRuffToken is ParameterizedToken {
 
     // heco token -> RUFF
     function depositTo(uint256 _value, string ruffAddr) public returns (bool) {
+        require(bytes(ruffAddr).length <= 64);
         require(_lock_ruff_addr != address(0));
+
         // SafeMath.sub will throw if there is not enough balance.
         transfer(_lock_ruff_addr, _value);
-        emit DepositEvent(_lock_ruff_addr, _value, ruffAddr);
+        emit DepositEvent(msg.sender, _lock_ruff_addr, _value, ruffAddr);
         return true;
     }
 
@@ -306,6 +308,7 @@ contract HecoRuffToken is ParameterizedToken {
         uint256 _value,
         string txHash
     ) public onlyRuffLocker returns (bool) {
+        require(bytes(txHash).length <= 128);
         require(_lock_ruff_addr != address(0));
         //require(msg.sender == _lock_ruff_addr);
 
